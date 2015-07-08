@@ -1,0 +1,33 @@
+{
+  "name": "Bridge",
+  "version": "0.0.1",
+  "description": "Transfers information from the OPC UA Server modules to an MQTT Broker sorted by Topic and ModuleID",
+  "main": "app.js",
+  "scripts": {
+    "test": "grunt",
+    "docs": "jsdoc -c jsdoc.json -d ./docs"
+  },
+  "keywords": [
+    "opc ua",
+    "mqtt",
+    "showcase",
+    "mi5",
+    "bridge"
+  ],
+  "author": "Thomas Frei",
+  "license": "MIT",
+  "repository": "https://github.com/ProjectMi5/Bridge",
+  "dependencies": {
+    "better-assert": "^1.0.2",
+    "mqtt": "^1.1.4",
+    "q": "^1.4.1",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "chai": "^2.3.0",
+    "chai-as-promised": "^5.0.0",
+    "grunt": "^0.4.5",
+    "grunt-mocha-test": "^0.12.7",
+    "mocha": "^2.2.5"
+  }
+}
