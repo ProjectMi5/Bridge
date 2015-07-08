@@ -20,6 +20,7 @@
   "dependencies": {
     "better-assert": "^1.0.2",
     "mqtt": "^1.1.4",
+    "node-opcua": "0.0.47",
     "q": "^1.4.1",
     "underscore": "^1.8.3"
   },
