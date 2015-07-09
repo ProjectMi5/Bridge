@@ -3,7 +3,7 @@ var async = require('async');
 
 var client = new opcua.OPCUAClient();
 
-var endpointUrl = "opc.tcp://" + require("os").hostname() + ":1234";
+var endpointUrl = "opc.tcp://" + require("os").hostname() + ":4840";
 
 var the_session = null;
 async.series([
@@ -30,7 +30,7 @@ async.series([
     },
     // step 4 : read a variable
     function(callback) {
-      the_session.readVariableValue("ns=4;s=MI5.Module1101.Output.Name", function(err,dataValues,diagnostics) {
+      the_session.readVariableValue("ns=4;s=MI5.Module1101.Output.SkillOutput.SkillOutput0.Ready", function(err,dataValues,diagnostics) {
         if (!err) {
           console.log(" temperature = " , dataValues[0].value.value);
         }
@@ -66,7 +66,7 @@ async.series([
       // install monitored item
       //
       var monitoredItem  = the_subscription.monitor({
-          nodeId: opcua.resolveNodeId("ns=4;s=MI5.Module1101.Output.Name"),
+          nodeId: opcua.resolveNodeId("ns=4;s=MI5.Module1101.Output.SkillOutput.SkillOutput0.Ready"),
           attributeId: 13
           //, dataEncoding: { namespaceIndex: 0, name:null }
         },

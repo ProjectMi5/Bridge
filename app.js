@@ -8,43 +8,68 @@
  */
 var config = require('./config.js');
 
-var opc = require('./models/simpleOpcua').server(config.Cocktail);
-//var opc = require('./models/simpleOpcua').server('opc.tcp://h3l1x:1234');
+var mqtt = require('mqtt');
+GLOBAL.mqttClient = mqtt.connect(config.MQTTHost);
+mqttClient.on('connect', function(){
+  mqttClient.publish('mi5/module/1101/busy','ready')
+  console.log('test');
+})
 
+// NodeID with callback Function
+var monitor = [ {
+  nodeId : 'MI5.Module1101.Output.SkillOutput.SkillOutput0.Ready',
+  topic : 'mi5/module/1101/state'
+}, {
+  nodeId : 'MI5.Module1101.Output.SkillOutput.SkillOutput0.Busy',
+  topic : 'mi5/module/1101/busy'
+}];
+
+// Start OPC UA connection, create a subscription and add all monitored items.
+var opc = require('./models/simpleOpcua').server(config.Cocktail);
 opc.initialize(function(err) {
   if (err) {
+    // TODO: Try to reconnect
     console.log(err);
     return 0;
   } else {
+    // Create a subscription
     opc.mi5Subscribe();
 
-
-    // NodeID with callback Function
-    var monitor = [ {
-      //nodeId : 'ns=4;s=myvariabl2',
-      nodeId : 'ns=4;s=MI5.Module11ge01.Output.SkillOutput.SkillOutput0.Ready',
-      callback : onNameChange
-    }];
-
-    assert(_.isArray(monitor));
-
-    monitor.forEach(function(item) {
-      console.log(item);
-      var mI = opc.mi5Monitor(item.nodeId);
-      mI.on('changed', item.callback);
-    });
-
+    // Add monitored items
+    monitorArray(monitor);
 
   }
 });
 
-
-function onNameChange(data){
-  console.log('Monitor item has changed somehow - data:');
-  console.log(data.value.value);
+/**
+ * Loops over an array, and creates a monitored item and adds the callback handler
+ *
+ * @param items [array]
+ */
+function monitorArray(items){
+  items.forEach(function(item) {
+    console.log(item);
+    var mI = opc.mi5Monitor(item.nodeId, item.topic);
+    mI.on('changed', cbHandler);
+  });
 }
 
+/**
+ * Callback for a change on a monitored item
+ *
+ * @param data
+ */
+function cbHandler(data){
+  //xx console.log(data);
 
+  // this.itemToMonitor.nodeId.value //MI5.Module1101.....
+  // this.itemToMonitor.topic // /mi5/module/1101/.... // beware this is kind of a hack with mi5Monitor
+  // Publish the Data to mqtt, regarding nodeid and topic
+  var topic = this.itemToMonitor.topic;
+  var value = data.value.value;
 
-// Just so that it keeps running
-setInterval(function(){},5000);
+  value = JSON.stringify(value);
+
+  mqttClient.publish(topic,value);
+  console.log('Publish: ',value,'to', topic);
+}

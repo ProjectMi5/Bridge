@@ -131,22 +131,27 @@ exports.server = function(endPointUrl) {
       /**
        * Add a monitored item. Gives back object for monitored item (with event
        * listeners)
+       * Note: itemToMonitor is passed through in node-opcua. This has to be verified for all versions. Tested for
+       * node v.0.0.47
        * 
        * @param nodeIdToMonitor
        *          (e.g. MI5.MessageFeed.MessageFeed[1])
        * @return Object
        */
-      mi5Monitor : function(nodeIdToMonitor) {
+      mi5Monitor : function(nodeIdToMonitor, topic) {
         nodeIdToMonitor = opcua._checkNodeId(nodeIdToMonitor);
 
+        // itemToMonitor is passed through...
         var itemToMonitor = {
           nodeId : nodeopcua.resolveNodeId(nodeIdToMonitor),
-          attributeId : 13
+          attributeId : 13,
+          topic: topic
         };
+        // Monitor settings
         var requestedParameters = {
           samplingInterval : 100,
           discardOldest : true,
-          queueSize : 10
+          queueSize : 1 // for mqtt publisher, take only 1
         };
         var timestampToReturn = nodeopcua.read_service.TimestampsToReturn.Both;
 
