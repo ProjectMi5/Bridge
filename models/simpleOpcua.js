@@ -63,10 +63,14 @@ exports.server = function(endPointUrl) {
           } else {
             callback();
           }
-        } ], function(err) {
+        }, function(callback){
+			initializeCallback(); 
+		}
+		], function(err) {
           opcua.emit('err', err);
           initializeCallback(err);
         });
+		
       },
 
       /**
@@ -151,7 +155,7 @@ exports.server = function(endPointUrl) {
         var requestedParameters = {
           samplingInterval : 100,
           discardOldest : true,
-          queueSize : 1 // for mqtt publisher, take only 1
+          queueSize : 10 // for mqtt publisher, take only 1
         };
         var timestampToReturn = nodeopcua.read_service.TimestampsToReturn.Both;
 
@@ -403,7 +407,7 @@ exports.server = function(endPointUrl) {
         }
 
         // check for namespace and node-identifier
-        if (baseNode.slice(0, 7) != 'ns=4;s=') {
+        if (baseNode.slice(0, 3) != 'ns=') {
           baseNode = 'ns=4;s=' + baseNode;
         }
 
@@ -424,7 +428,7 @@ exports.server = function(endPointUrl) {
         }
 
         // check for namespace and node-identifier
-        if (baseNode.slice(0, 7) != 'ns=4;s=') {
+        if (baseNode.slice(0, 3) != 'ns=') {
           baseNode = 'ns=4;s=' + baseNode;
         }
 
