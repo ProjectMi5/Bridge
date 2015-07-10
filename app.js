@@ -12,20 +12,19 @@ var mqtt = require('mqtt');
 GLOBAL.mqttClient = mqtt.connect(config.MQTTHost);
 mqttClient.on('connect', function(){
   mqttClient.publish('mi5/module/1101/busy','ready')
-  console.log('test');
+  console.log('MQTT: connected to ', config.MQTTHost);
 })
 
 // NodeID with callback Function
 var monitor = [ {
-  nodeId : 'MI5.Module1101.Output.SkillOutput.SkillOutput0.Ready',
-  topic : 'mi5/module/1101/state'
-}, {
-  nodeId : 'MI5.Module1101.Output.SkillOutput.SkillOutput0.Busy',
-  topic : 'mi5/module/1101/busy'
+  //nodeId : 'MI5.Module2403Manual.Busy', // Beckhoff
+  nodeId : 'ns=6;s=::AsGlobalPV:Module2201.Input.PositionInput',
+  topic : 'mi5/module/2403/busy'
 }];
 
 // Start OPC UA connection, create a subscription and add all monitored items.
-var opc = require('./models/simpleOpcua').server(config.Cocktail);
+// var opc = require('./models/simpleOpcua').server('opc.tcp://192.168.42.42:4840'); // Beckhoff
+var opc = require('./models/simpleOpcua').server('opc.tcp://192.168.42.14:4840'); // BnR
 opc.initialize(function(err) {
   if (err) {
     // TODO: Try to reconnect
@@ -41,6 +40,9 @@ opc.initialize(function(err) {
   }
 });
 
+// Keep program alive
+setInterval(function(){},1000);
+
 /**
  * Loops over an array, and creates a monitored item and adds the callback handler
  *
@@ -51,6 +53,10 @@ function monitorArray(items){
     console.log(item);
     var mI = opc.mi5Monitor(item.nodeId, item.topic);
     mI.on('changed', cbHandler);
+	
+	setInterval(function(){
+	  console.log(mI);
+	},1000);
   });
 }
 
