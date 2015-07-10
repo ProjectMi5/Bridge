@@ -30,9 +30,9 @@ mqttClient.on('connect', function(){
       if(level <= 0){
         level = 100;
       }
-      level = JSON.stringify(level); // needed for mqtt
+      
       console.log('publish',topic, level);
-      mqttClient.publish(topic, level);
+      mqttClient.publish(topic, JSON.stringify(level));
     },1000);
   }
 
@@ -43,9 +43,9 @@ mqttClient.on('connect', function(){
       if(level <= 0){
         level = 1500;
       }
-      level = JSON.stringify(level); // needed for mqtt
+      
       console.log('publish',topic, level);
-      mqttClient.publish(topic, level);
+      mqttClient.publish(topic, JSON.stringify(level));
     },500);
   }
 });
