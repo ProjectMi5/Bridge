@@ -15,26 +15,9 @@ bridge.initializeMQTT();
 /**
  * Item configuration
  */
-var watch = [
-  {
-    name: 'Mock',
-    server: 'opc.tcp://localhost:4840/',
-    nodes: [
-      {
-        nodeId: 'MI5.Module1101.Output.SkillOutput.SkillOutput0.Activated',
-        topic : 'mi5/module/1101/skilloutput0/activated'
-      }, {
-        nodeId: 'MI5.Module1101.Output.SkillOutput.SkillOutput0.Busy',
-        topic : 'mi5/module/1101/skilloutput0/busy'
-      }, {
-        nodeId: 'MI5.Module1101.Output.SkillOutput.SkillOutput0.Done',
-        topic : 'mi5/module/1101/skilloutput0/done'
-      }
-    ]
-  }
-];
+var nodes = require('./nodes.js').nodes;
 
-watch.forEach(function(serverObject){
+nodes.forEach(function(serverObject){
   bridge.initializeOPCUA(serverObject);
 });
 
