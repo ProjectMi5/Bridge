@@ -5,9 +5,14 @@
  * With newer version, a value gets always published, even when nothing changes. With older version, a keepalive
  * is send instead.
  * TODO: It is unclear now, how a beckhoff opcua server or other implementation react
+ *
+ * Test with node-opcua server: js\HMI\misc>node OPCUAServer_InputModule.js
  */
 var config = require('./config.js');
 
+/**
+ MQTT Connection
+ */
 var mqtt = require('mqtt');
 GLOBAL.mqttClient = mqtt.connect(config.MQTTHost);
 mqttClient.on('connect', function(){
@@ -15,16 +20,27 @@ mqttClient.on('connect', function(){
   console.log('MQTT: connected to ', config.MQTTHost);
 })
 
-// NodeID with callback Function
+/**
+ * Items per Server
+ */
+// NodeIDs with callback Function
 var monitor = [ {
-  //nodeId : 'MI5.Module2403Manual.Busy', // Beckhoff
-  nodeId : 'ns=6;s=::AsGlobalPV:Module2201.Input.PositionInput',
-  topic : 'mi5/module/2403/busy'
+  //nodeId : 'MI5.Module2403.Manual.Busy', // Beckhoff
+  //nodeId : 'ns=6;s=::AsGlobalPV:Module2201.Input.PositionInput',
+  nodeId: 'MI5.Module1101.Output.SkillOutput.SkillOutput0.Activated',
+  topic : 'mi5/module/1101/skilloutput0/activated'
+}, {
+  nodeId: 'MI5.Module1101.Output.SkillOutput.SkillOutput0.Busy',
+  topic : 'mi5/module/1101/skilloutput0/busy'
+}, {
+  nodeId: 'MI5.Module1101.Output.SkillOutput.SkillOutput0.Done',
+  topic : 'mi5/module/1101/skilloutput0/done'
 }];
 
-// Start OPC UA connection, create a subscription and add all monitored items.
-// var opc = require('./models/simpleOpcua').server('opc.tcp://192.168.42.42:4840'); // Beckhoff
-var opc = require('./models/simpleOpcua').server('opc.tcp://192.168.42.14:4840'); // BnR
+/**
+ * OPC UA Connection
+ */
+var opc = require('./models/simpleOpcua').server(config.OPCUAMockup);
 opc.initialize(function(err) {
   if (err) {
     // TODO: Try to reconnect
@@ -36,7 +52,6 @@ opc.initialize(function(err) {
 
     // Add monitored items
     monitorArray(monitor);
-
   }
 });
 
@@ -52,11 +67,12 @@ function monitorArray(items){
   items.forEach(function(item) {
     console.log(item);
     var mI = opc.mi5Monitor(item.nodeId, item.topic);
-    mI.on('changed', cbHandler);
-	
-	setInterval(function(){
-	  console.log(mI);
-	},1000);
+
+    // opc.mi5Monitor is async, wait one event loop
+    setTimeout(function(){
+      console.log('Monitor this nodeId: ',mI.itemToMonitor.nodeId.value);
+      mI.on('changed', cbHandlerGeneric);
+    },0);
   });
 }
 
@@ -65,17 +81,19 @@ function monitorArray(items){
  *
  * @param data
  */
-function cbHandler(data){
-  //xx console.log(data);
-
-  // this.itemToMonitor.nodeId.value //MI5.Module1101.....
-  // this.itemToMonitor.topic // /mi5/module/1101/.... // beware this is kind of a hack with mi5Monitor
-  // Publish the Data to mqtt, regarding nodeid and topic
-  var topic = this.itemToMonitor.topic;
+function cbHandlerGeneric(data){
+  var topic = this.itemToMonitor.topic; // beware this is kind of a hack with opc.mi5Monitor()
   var value = data.value.value;
 
-  value = JSON.stringify(value);
+  if (value != this.itemToMonitor.previousValue){
+    this.itemToMonitor.previousValue = value; //add a new variable to monitored item
 
-  mqttClient.publish(topic,value);
-  console.log('Publish: ',value,'to', topic);
+    value = JSON.stringify(value);
+
+    mqttClient.publish(topic,value);
+    console.log('Publish: ',value,'to', topic);
+  }
+  else {
+    console.log('No new value');
+  }
 }

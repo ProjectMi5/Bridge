@@ -155,7 +155,7 @@ exports.server = function(endPointUrl) {
         var requestedParameters = {
           samplingInterval : 100,
           discardOldest : true,
-          queueSize : 10 // for mqtt publisher, take only 1
+          queueSize : 1 // for mqtt publisher, take only 1
         };
         var timestampToReturn = nodeopcua.read_service.TimestampsToReturn.Both;
 
@@ -341,11 +341,7 @@ exports.server = function(endPointUrl) {
 
       /**
        * returns Node-OPCUA Datatype according to normal datatype.
-       * 
-       * @param nodeId
-       *          <string> nodeId to value (e.g. MI5.Order[0].TaskID)
-       * @param value
-       *          <scalar> the value to write (e.g. "hallo", 1, 23, 2.5, true)
+       *
        * @param type
        *          <string> corresponding type (e.g. String, Int16, Int32, Float,
        *          Boolean)
@@ -502,7 +498,7 @@ exports.server = function(endPointUrl) {
        * deprecated
        */
       _addNameForResultObject : function(data) {
-        var output = new Array;
+        var output = [];
         // Find .AlphaNumeric beginning from end of line, then the points needs
         // to be sliced away.
         var exp = /\.\w*$/
@@ -525,9 +521,7 @@ exports.server = function(endPointUrl) {
        *         UserParameter: [{Dummy : ..., Default: ...,}]]}
        */
       _formatResultObjectToJade : function(data) {
-        var output = new Array;
-
-        return output;
+        return [];
       },
 
       /**
@@ -613,7 +607,7 @@ exports.server = function(endPointUrl) {
         });
 
         return nodes;
-      },
+      }
 
     };
 
