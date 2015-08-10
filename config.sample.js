@@ -3,6 +3,6 @@
  */
 var config = {};
 
-config.MQTTHost = 'mqtt://localhost';
+config.MQTTHost = 'tcp://localhost:1883';
 
 module.exports = config;
