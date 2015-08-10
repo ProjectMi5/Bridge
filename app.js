@@ -15,7 +15,6 @@ bridge.initializeMQTT();
 /**
  * Item configuration
  */
-// NodeIDs with callback Function
 var watch = [
   {
     name: 'Mock',

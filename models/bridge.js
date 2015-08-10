@@ -49,6 +49,14 @@ function monitorArray(items, opcHandle){
     console.log(item);
     var mI = opcHandle.mi5Monitor(item.nodeId, item.topic);
 
+    // Debug Injection
+    //var chance = new require('chance')();
+    //setInterval(function(){
+    //  mI.emit('changed', {
+    //    value: { value: chance.integer({min: 0, max: 5000}) }
+    //  });
+    //}, chance.integer({min: 2000, max: 5000}));
+
     // opc.mi5Monitor is async, wait one event loop
     setTimeout(function(){
       console.log('Monitor this nodeId: ',mI.itemToMonitor.nodeId.value);
